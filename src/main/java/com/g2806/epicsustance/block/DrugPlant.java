@@ -6,9 +6,6 @@ import net.minecraft.block.CropBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
@@ -18,8 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
-import java.util.List;
-import java.util.Random;
+import net.minecraft.block.Blocks;
 import com.g2806.epicsustance.init.BlockRegistry;
 
 public class DrugPlant extends CropBlock {
@@ -59,7 +55,14 @@ public class DrugPlant extends CropBlock {
 
     @Override
     protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-        return floor.isOf(BlockRegistry.DRUG_FARMER);
+        // Allow planting on the mod's special farmer block, on vanilla farmland,
+        // and on common dirt variants to avoid breaking if the soil changes.
+        return floor.isOf(BlockRegistry.DRUG_FARMER)
+            || floor.isOf(Blocks.FARMLAND)
+            || floor.isOf(Blocks.DIRT)
+            || floor.isOf(Blocks.COARSE_DIRT)
+            || floor.isOf(Blocks.GRASS_BLOCK)
+            || floor.isOf(Blocks.PODZOL);
     }
 
     @Override
@@ -94,5 +97,14 @@ public class DrugPlant extends CropBlock {
         }
         
         return super.onUse(state, world, pos, player, hand, hit);
+    }
+
+    @Override
+    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+        // Only respond to neighbor changes that happen below the plant (the soil).
+        // This prevents placing blocks at the sides from breaking the crop.
+        if (sourcePos.equals(pos.down())) {
+            super.neighborUpdate(state, world, pos, sourceBlock, sourcePos, notify);
+        }
     }
 }
