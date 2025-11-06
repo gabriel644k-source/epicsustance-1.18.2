@@ -19,6 +19,7 @@ import com.g2806.epicsustance.item.DrugFood;
 import com.g2806.epicsustance.item.DrugSeed;
 import com.g2806.epicsustance.item.DrugHelper;
 import com.g2806.epicsustance.item.DrugInjectable;
+import com.g2806.epicsustance.item.GrinderItem;
 
 public class ItemRegistry {
     
@@ -27,8 +28,8 @@ public class ItemRegistry {
     public static final Item MORTAR = registerItem("item_mortar", 
         new Item(new Item.Settings().group(Epicsustance.DRUG_TAB)));
     public static final Item GRINDER = registerItem("item_grinder", 
-        new Item(new Item.Settings().group(Epicsustance.DRUG_TAB).maxCount(1)));
-    
+        new GrinderItem(new Item.Settings().group(Epicsustance.DRUG_TAB).maxCount(1)));
+
     public static final Item ITEM_EMPTY_SYRINGE = registerItem("item_empty_syringe", 
         new Item(new Item.Settings().group(Epicsustance.DRUG_TAB)));
     public static final Item ITEM_MORPHINE_SYRINGE = registerItem("item_morphine_syringe", 
