@@ -19,6 +19,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.BlockHitResult;
 import java.util.Random;
 import com.g2806.epicsustance.init.BlockRegistry;
+import net.minecraft.world.level.block.Blocks;
 
 public class DrugPlant extends CropBlock {
     private static final VoxelShape[] AGE_TO_SHAPE = new VoxelShape[]{
@@ -57,13 +58,26 @@ public class DrugPlant extends CropBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
-        return floor.is(BlockRegistry.DRUG_FARMER.get());
+        // Allow planting on the custom DRUG_FARMER block or on vanilla farmland
+        return floor.is(BlockRegistry.DRUG_FARMER.get()) || floor.is(Blocks.FARMLAND);
     }
 
     @Override
     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         BlockPos blockPos = pos.below();
         return this.mayPlaceOn(world.getBlockState(blockPos), world, blockPos);
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+        // Only react to neighbor changes if the block below changed; ignore other neighbor updates
+        if (fromPos.equals(pos.below())) {
+            if (!this.canSurvive(state, world, pos)) {
+                // If cannot survive because soil changed, break the plant and drop items
+                world.destroyBlock(pos, true);
+            }
+        }
+        // otherwise ignore neighbor changes so adjacent blocks won't break this plant
     }
 
     @Override
