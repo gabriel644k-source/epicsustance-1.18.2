@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -32,9 +33,21 @@ public class ItemRegistry {
         () -> new Item(new Item.Properties().tab(Epicsustance.DRUG_TAB)));
     public static final RegistryObject<Item> MORTAR = ITEMS.register("item_mortar", 
         () -> new Item(new Item.Properties().tab(Epicsustance.DRUG_TAB)));
-    public static final RegistryObject<Item> GRINDER = ITEMS.register("item_grinder", 
-        () -> new Item(new Item.Properties().tab(Epicsustance.DRUG_TAB).stacksTo(1)));
-    
+    // The grinder should not be consumed by crafting recipes: override container behaviour
+    public static final RegistryObject<Item> GRINDER = ITEMS.register("item_grinder",
+        () -> new Item(new Item.Properties().tab(Epicsustance.DRUG_TAB).stacksTo(1)) {
+            @Override
+            public boolean hasContainerItem(ItemStack stack) {
+                return true;
+            }
+
+            @Override
+            public ItemStack getContainerItem(ItemStack stack) {
+                // Return the same item back to the crafting grid (not consumed)
+                return stack.copy();
+            }
+        });
+
     // Syringes
     public static final RegistryObject<Item> ITEM_EMPTY_SYRINGE = ITEMS.register("item_empty_syringe", 
         () -> new Item(new Item.Properties().tab(Epicsustance.DRUG_TAB)));
